@@ -1,0 +1,43 @@
+--- ../pnl/linux-4.19.27/mm/page-writeback.c	2019-05-25 11:52:48.524982291 +0200
++++ page-writeback.c	2019-05-12 10:01:47.106841965 +0200
+@@ -2105,9 +2105,9 @@
+ 			     pgoff_t start, pgoff_t end)
+ {
+ #define WRITEBACK_TAG_BATCH 4096
+-	unsigned long tagged = 0;
+-	struct radix_tree_iter iter;
+-	void **slot;
++	unsigned long tagged = 0, max = 0, iterate = 0;
++	struct radix_tree_iter iter,  old_iter;
++	void **slot, **old_slot = slot = radix_tree_iter_init(&iter, start);
+ 
+ 	xa_lock_irq(&mapping->i_pages);
+ 	radix_tree_for_each_tagged(slot, &mapping->i_pages, &iter, start,
+@@ -2117,6 +2117,27 @@
+ 		radix_tree_iter_tag_set(&mapping->i_pages, &iter,
+ 							PAGECACHE_TAG_TOWRITE);
+ 		tagged++;
++                if(likely(!(tagged == 1))) {
++                        old_slot = radix_tree_next_slot(old_slot, &old_iter, 0);
++                        pr_info("%p : %p \n", slot, old_slot);
++                }
++                if(slot != old_slot) {
++                        radix_tree_for_each_slot(old_slot, &mapping->i_pages,
++                                                 &old_iter, old_iter.index) {
++                                if(slot == old_slot || iterate >= max) {
++                                        max = 1;
++                                        iterate = 0;
++                                        break;
++                                }
++                                radix_tree_iter_tag_set(&mapping->i_pages, &old_iter,
++                                                        PAGECACHE_TAG_TOWRITE);
++                                iterate++;
++                        }
++                } else {
++                        max++;
++                }
++                old_iter = iter;
++                old_slot = slot;
+ 		if ((tagged % WRITEBACK_TAG_BATCH) != 0)
+ 			continue;
+ 		slot = radix_tree_iter_resume(slot, &iter);
