@@ -39,7 +39,7 @@ for nb_pages in ${nb[@]};do
     io_req_aft=`echo "${io_req_aft}-${io_req_bef}" | bc -l`
     io_merged_aft=`echo "${io_merged_aft}-${io_merged_bef}" | bc -l`
 
-    rapport=`echo "$io_merged_aft/$io_req_aft" | bc -l` #nombre de requêtes qui ont été mergées en 1 requete disque en moyenne
+    rapport=`echo "$nb_pages/$io_req_aft" | bc -l` #nombre de requêtes qui ont été mergées en 1 requete disque en moyenne
     printf "$nb_pages,$type,$io_req_aft,$io_merged_aft,%0.3f\n" $rapport | tee -a $out
     
 done
