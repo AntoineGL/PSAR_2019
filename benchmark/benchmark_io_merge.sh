@@ -28,7 +28,7 @@ for nb_pages in ${nb[@]};do
     stat=`cat /sys/block/$1/$2/stat | tr -s ' '`
     io_req_bef=`echo -n $stat | cut -d ' ' -f 5`
     io_merged_bef=`echo -n $stat | cut -d ' ' -f 6`
-    ./benchmark -m $type -p $nb_pages $file > /dev/null
+    ./benchmark -m $type -p $nb_pages $file -cs > /dev/null
     if [[ $? -ne 0 ]];then
 	echo "An error has occured, $0 aborted"
 	exit 2
