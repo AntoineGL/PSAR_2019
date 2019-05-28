@@ -23,6 +23,7 @@ static int clear_page_cache()
 static inline int write_page(int fd)
 {
 	char a = '\0';
+	logger(3,"writting page n°%ld\n",lseek(fd,0,SEEK_CUR)/PAGESIZE);
 	int ret = write(fd, &a, 1);
 	if(ret<0) return ret;
 	lseek(fd, PAGESIZE - 1, SEEK_CUR);
@@ -32,6 +33,7 @@ static inline int write_page(int fd)
 static inline int read_page(int fd)
 {
 	char a;
+	logger(3,"reading page n°%ld\n",lseek(fd,0,SEEK_CUR)/PAGESIZE);
 	int ret = read(fd, &a, 1);
 	if(ret<0) return ret;
 	lseek(fd, PAGESIZE - 1, SEEK_CUR);
